@@ -17,6 +17,14 @@ import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
 public class Main {
 
+    static double vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+            0, 0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f
+    };
+
+    static boolean goingUp = false;
+
     public static void main(String[] args) throws LWJGLException {
 
         Display.setTitle("example");
@@ -30,10 +38,10 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_FRAMEBUFFER_SRGB);
 
-        double vertices[] = {
-                -0.5f, -0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
-                0.0f, -0.5f, 0.0f
+
+
+        double indices[] = {
+
         };
 
         int vbo = glGenBuffers();
@@ -80,21 +88,20 @@ public class Main {
         glDeleteShader(vertShader);
         glDeleteShader(fragShader);
 
-        if(glGetProgram(shaderProgram, GL_VALIDATE_STATUS) == 0){
-            System.err.println(glGetProgramInfoLog(shaderProgram,1024));
-            System.exit(1);
-        }
-
-
         while (!Display.isCloseRequested()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            render(vertices, vbo, shaderProgram);
+            render(vbo, shaderProgram);
             Display.update();
-
+            run();
+            try {
+                Thread.sleep(30);
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
-    public static void render(double vertices[], int vbo, int shaderProgram) {
+    public static void render(int vbo, int shaderProgram) {
         glUseProgram(shaderProgram);
 
         glEnableVertexAttribArray(0);
@@ -103,6 +110,25 @@ public class Main {
         glDrawArrays(GL_TRIANGLES, 0, 9); // 9?
         glDisableVertexAttribArray(0);
 
-        //todo func to draw
+    }
+
+    private static void run() {
+
+        if (vertices[4] <= -0.8)
+            goingUp = true;
+        if (vertices[4] >= 0.8)
+            goingUp = false;
+        if (goingUp){
+            vertices[4]+=0.1;
+        }else {
+            vertices[4]-=0.1;
+        }
+
+        DoubleBuffer doubleBuffer = BufferUtils.createDoubleBuffer(9);
+        for (double vertex : vertices) {
+            doubleBuffer.put(vertex);
+        }
+        doubleBuffer.flip();
+        glBufferData(GL_ARRAY_BUFFER, doubleBuffer, GL_STATIC_DRAW);
     }
 }
