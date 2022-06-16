@@ -18,13 +18,14 @@ import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 public class Main {
 
     static double vertices[] = {
+            0.5f, 0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f,
-            0, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f
+            -0.5f, 0.5f, 0.0f
     };
 
     static double indices[] = {
-        0,1,2,1,2,3
+        0,1,3,1,2,3
     };
 
     static boolean goingUp = false;
@@ -50,7 +51,7 @@ public class Main {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, verticesDoubleBuffer, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3 * 8, 0); // ??????
+//        glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3 * 8, 0); // ??????
 
         //создали буфер индексов
         DoubleBuffer indicesDoubleBuffer = BufferUtils.createDoubleBuffer(indices.length);
@@ -61,11 +62,8 @@ public class Main {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesDoubleBuffer, GL_STATIC_DRAW);
 
-
+        glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3 * 8, 0);
         glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
-        glBindVertexArray(0);
 
         String vertexShaderSource = "#version 330 core\n" +
                 "layout (location=0) in vec3 aPos;\n" +
