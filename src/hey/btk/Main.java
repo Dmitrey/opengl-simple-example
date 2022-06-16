@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL15.*;
 import org.lwjgl.BufferUtils;
 
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
 public class Main {
@@ -23,6 +23,10 @@ public class Main {
             0.5f, -0.5f, 0.0f
     };
 
+    static double indices[] = {
+        0,1,2,1,2,3
+    };
+
     static boolean goingUp = false;
 
     public static void main(String[] args) throws LWJGLException {
@@ -31,28 +35,37 @@ public class Main {
         Display.setDisplayMode(new DisplayMode(800, 600));
         Display.create();
 
-        glClearColor(0, 0.2f, 0.5f, 0);
-        glFrontFace(GL_CW);
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        glClearColor(0, 0.5f, 0.5f, 0);
 
+        //создали VAO
+        int vao =glGenVertexArrays();
+        glBindVertexArray(vao);
 
+        //создали буфер
+        DoubleBuffer verticesDoubleBuffer = BufferUtils.createDoubleBuffer(vertices.length);
+        verticesDoubleBuffer.put(vertices).flip();
 
-        double indices[] = {
-
-        };
-
+        // создали VBO
         int vbo = glGenBuffers();
-        System.out.println(vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        DoubleBuffer doubleBuffer = BufferUtils.createDoubleBuffer(9);
-        for (double vertex : vertices) {
-            doubleBuffer.put(vertex);
-        }
-        doubleBuffer.flip();
-        glBufferData(GL_ARRAY_BUFFER, doubleBuffer, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, verticesDoubleBuffer, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3 * 8, 0); // ??????
+
+        //создали буфер индексов
+        DoubleBuffer indicesDoubleBuffer = BufferUtils.createDoubleBuffer(indices.length);
+        verticesDoubleBuffer.put(indices).flip();
+
+        // Create the Element Buffer object
+        int ebo = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesDoubleBuffer, GL_STATIC_DRAW);
+
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(0);
 
         String vertexShaderSource = "#version 330 core\n" +
                 "layout (location=0) in vec3 aPos;\n" +
@@ -90,9 +103,11 @@ public class Main {
 
         while (!Display.isCloseRequested()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            render(vbo, shaderProgram);
+//            render(vbo, shaderProgram);
+//            renderWithEbo(ebo,shaderProgram);
+            render2(vao,shaderProgram);
             Display.update();
-            run();
+            //run();
             try {
                 Thread.sleep(30);
             } catch (InterruptedException exception) {
@@ -110,6 +125,24 @@ public class Main {
         glDrawArrays(GL_TRIANGLES, 0, 9); // 9?
         glDisableVertexAttribArray(0);
 
+    }
+
+    public static void renderWithEbo(int ebo, int shaderProgram){
+        glUseProgram(shaderProgram);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3 * 8, 0);
+//        glDrawArrays(GL_TRIANGLES, 0, 9); // 9?
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+        glDisableVertexAttribArray(0);
+    }
+
+    public static void render2(int vao, int shaderProgram){
+        glUseProgram(shaderProgram);
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_DOUBLE, 0);
+        glBindVertexArray(0);
     }
 
     private static void run() {
