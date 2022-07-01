@@ -94,16 +94,15 @@ public class Main {
             System.exit(1);
         }
 
-
         while (!Display.isCloseRequested()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            render(vertices, vbo, shaderProgram, vao, ebo);
+            render(vertices, shaderProgram, vao);
             Display.update();
 
         }
     }
 
-    public static void render(double vertices[], int vbo, int shaderProgram, int vao, int ebo) {
+    public static void render(double vertices[],  int shaderProgram, int vao) {
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
