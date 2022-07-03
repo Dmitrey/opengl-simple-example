@@ -8,43 +8,49 @@ import util.Util;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
-public class Class32 {
+public class Class33 {
 
-    static float x = (float) Math.sqrt(3);
+    static float x = (float) Math.sqrt(2);
 
     public static float[] vertices = {
-
-            -x, -1, -1,
-            0, (float) Math.sqrt(2)*2-1, 0,
-            x, -1, -1,
-            0, -1, 2};
+            0,1,0,
+            -1,1-x,-1,
+            -1,1-x,1,
+            1,1-x,1,
+            1,1-x,-1
+    };
 
 //    public static int[] indices = new int[]{
-//            0, 1, 3,
-//            3, 1, 2,
-//            2, 1, 0,
-//            0, 2, 3};
+//            2,0,3,
+//            3,1,2,
+//            3,4,1
+//    };
 
     public static int[] indices = new int[]{
-            0,3,2,
-            0,1,3,
-            3,1,2,
-            2,1,0
+            1,2,4,
+            2,3,4,
+            1,0,4,
+            4,0,3,
+            3,0,2,
+            2,0,1
     };
 
     public static void main(String[] args) throws LWJGLException {
         Display.setTitle("two triangles");
-        Display.setDisplayMode(new DisplayMode(800, 600));
+        Display.setDisplayMode(new DisplayMode(800, 800));
         Display.create();
 
         glClearColor(0, 0, 0, 0);
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
+        //todo be careful with this
+//        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
 
         glEnable(GL_FRAMEBUFFER_SRGB);
@@ -79,7 +85,7 @@ public class Class32 {
             }
 
             //просто составляем матрицу по специальному алгоритму на основе углов поворота по осям
-            Matrix4f rotation = new Matrix4f().initRotation(0, counter, 0);
+            Matrix4f rotation = new Matrix4f().initRotation(counter, counter, 0);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(program);
